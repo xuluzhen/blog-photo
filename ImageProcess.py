@@ -53,7 +53,7 @@ class Graphics:
             out = im.resize(im.size, Image.ANTIALIAS)  
             out.save(self.outfile, quality=q)  
             size_tmp = os.path.getsize(self.outfile)  
-            q -= 5  
+            q -= 2  
         if q == 100:  
             shutil.copy(self.infile, self.outfile)  
 

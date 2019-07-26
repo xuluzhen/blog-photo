@@ -10,7 +10,10 @@ from ImageProcess import Graphics
 SIZE_normal = 1.0
 SIZE_small = 1.5
 SIZE_more_small = 2.0
+SIZE_more_small_s = 2.5
 SIZE_more_small_small = 3.0
+SIZE_more_small_small_s = 4.0
+SIZE_more_small_small_s_s = 5.0
 
 
 def make_directory(directory):
@@ -31,7 +34,7 @@ def list_img_file(directory):
     new_list = []
     for filename in old_list:
         name, fileformat = filename.split(".")
-        if fileformat.lower() == "jpg" or fileformat.lower() == "png" or fileformat.lower() == "gif":
+        if fileformat.lower() == "jpg" or fileformat.lower() == "jpeg" or fileformat.lower() == "png" or fileformat.lower() == "gif":
             new_list.append(filename)
     # print new_list
     return new_list
@@ -46,13 +49,14 @@ def print_help():
     3) smaller compress(4M to 300K around)
     """)
 
-def compress(choose, des_dir, src_dir, file_list):
+def compress(choose , des_dir, src_dir, file_list):
     """压缩算法，img.thumbnail对图片进行压缩，
     
     参数
     -----------
     choose: str
             选择压缩的比例，有4个选项，越大压缩后的图片越小
+    """
     """
     if choose == '1':
         scale = SIZE_normal
@@ -62,14 +66,32 @@ def compress(choose, des_dir, src_dir, file_list):
         scale = SIZE_more_small
     if choose == '4':
         scale = SIZE_more_small_small
+    """
     for infile in file_list:
+        size = round(os.path.getsize(src_dir+infile)/1048576,2)
+        #print (size)
+        if size < 0.5:
+            scale = SIZE_more_small
+        if size >= 0.5 and size < 1:
+            scale = SIZE_small
+        if size >= 1 and size < 2:
+            scale = SIZE_more_small
+        if size >= 2 and size < 3:
+            scale = SIZE_more_small_s
+        if size >= 3:
+            scale = SIZE_more_small_small
+        #if size >= 5 and size < 8:
+        #    scale = SIZE_more_small_small_s
+        #if size >= 8:
+        #    scale = SIZE_more_small_small_s_s
+        #print (scale)
         img = Image.open(src_dir+infile)
         # size_of_file = os.path.getsize(infile)
         w, h = img.size
         img.thumbnail((int(w/scale), int(h/scale)))
         img.save(des_dir + infile)
-		#Graphics(infile=src_dir+infile, outfile=des_dir + infile).resize_by_size(100)
-def compress_photo(src_dir,des_dir,str):
+		#  Graphics(infile=src_dir+infile, outfile=des_dir + infile).resize_by_size(100)
+def compress_photo(src_dir,des_dir,str = 3):
     '''调用压缩图片的函数
     '''
     #src_dir, des_dir = "photos/", "mini_photos/"
@@ -80,11 +102,14 @@ def compress_photo(src_dir,des_dir,str):
     if not directory_exists(des_dir):
         make_directory(des_dir)
     file_list_des = list_img_file(des_dir)
-    # print file_list
+    #print (file_list_des)
     '''如果已经压缩了，就不再压缩'''
+    #print (range(len(file_list_des)))
     for i in range(len(file_list_des)):
+        print (i)
         if file_list_des[i] in file_list_src:
             file_list_src.remove(file_list_des[i])
+    #print (file_list_src)
     compress(str, des_dir, src_dir, file_list_src)
 
 def handle_photo():
@@ -147,13 +172,35 @@ def cut_photo(src_dir,des_dir):
             print_help()
             for infile in file_list:
                 img = Image.open(src_dir+infile)
-                Graphics(infile=src_dir+infile, outfile=des_dir + infile).resize_by_size(100)            
+                Graphics(infile=src_dir+infile, outfile=des_dir + infile).cut_by_ratio()            
         else:
             pass
     else:
         print("source directory not exist!")     
 
-
+def cut_photo1(src_dir,des_dir):
+    """裁剪算法
+    
+    ----------
+    调用Graphics类中的裁剪算法，将src_dir目录下的文件进行裁剪（裁剪成正方形）
+    """
+    #src_dir = "photos/"
+	#des_dir = "mini_photos/"
+    if directory_exists(src_dir):
+        if not directory_exists(des_dir):
+            make_directory(des_dir)
+        # business logic
+        file_list = list_img_file(src_dir)
+        # print file_list
+        if file_list:
+            print_help()
+            for infile in file_list:
+                img = Image.open(src_dir+infile)
+                Graphics(infile=src_dir+infile, outfile=des_dir + infile).cut_by_ratio()            
+        else:
+            pass
+    else:
+        print("source directory not exist!")  
 
 def git_operation():
 	"""    git 命令行函数，将仓库提交
@@ -166,9 +213,11 @@ def git_operation():
 	os.system('git push origin master')
 
 if __name__ == "__main__":
-    compress_photo("src_photos/", "photos/","2")   # 压缩图片，并保存到mini_photos文件夹下
-    compress_photo("src_photos/", "tmp_photos/","4")   # 压缩图片，并保存到mini_photos文件夹下
-    cut_photo("tmp_photos/", "mini1_photos/")        # 裁剪图片，裁剪成正方形，去中间部分
+    #compress_photo("src_photos/", "photos/","2")   # 压缩图片，并保存到mini_photos文件夹下
+    compress_photo("src_photos/", "photos/")
+    compress_photo("photos/", "tmp_photos/")
+    #compress_photo("photos/", "tmp_photos/","4")
+    cut_photo("tmp_photos/", "mini_photos/")        # 裁剪图片，裁剪成正方形，去中间部分
     git_operation()    # 提交到github仓库
     handle_photo()     # 将文件处理成json格式，存到博客仓库中
     
