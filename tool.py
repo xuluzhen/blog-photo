@@ -68,26 +68,23 @@ def compress(choose, des_dir, src_dir, file_list):
         w, h = img.size
         img.thumbnail((int(w/scale), int(h/scale)))
         img.save(des_dir + infile)
-def compress_photo():
+def compress_photo(src_dir,des_dir,str):
     '''调用压缩图片的函数
     '''
-    src_dir, des_dir = "photos/", "mini_photos/"
-    
-    if directory_exists(src_dir):
-        if not directory_exists(src_dir):
-            make_directory(src_dir)
-        # business logic
-        file_list_src = list_img_file(src_dir)
-    if directory_exists(des_dir):
-        if not directory_exists(des_dir):
-            make_directory(des_dir)
-        file_list_des = list_img_file(des_dir)
-        # print file_list
+    #src_dir, des_dir = "photos/", "mini_photos/"
+    if not directory_exists(src_dir):
+        make_directory(src_dir)
+    # business logic
+    file_list_src = list_img_file(src_dir)
+    if not directory_exists(des_dir):
+        make_directory(des_dir)
+    file_list_des = list_img_file(des_dir)
+    # print file_list
     '''如果已经压缩了，就不再压缩'''
     for i in range(len(file_list_des)):
         if file_list_des[i] in file_list_src:
             file_list_src.remove(file_list_des[i])
-    compress('4', des_dir, src_dir, file_list_src)
+    compress(str, des_dir, src_dir, file_list_src)
 
 def handle_photo():
     '''根据图片的文件名处理成需要的json格式的数据
@@ -131,17 +128,17 @@ def handle_photo():
     with open("../data.json","w") as fp:
         json.dump(final_dict, fp)
 
-def cut_photo():
+def cut_photo(src_dir,des_dir):
     """裁剪算法
     
     ----------
     调用Graphics类中的裁剪算法，将src_dir目录下的文件进行裁剪（裁剪成正方形）
     """
-    src_dir = "photos/"
-#	src_dir1 = "mini_photos/"
+    #src_dir = "photos/"
+	#des_dir = "mini_photos/"
     if directory_exists(src_dir):
-        if not directory_exists(src_dir):
-            make_directory(src_dir)
+        if not directory_exists(des_dir):
+            make_directory(des_dir)
         # business logic
         file_list = list_img_file(src_dir)
         # print file_list
@@ -149,29 +146,29 @@ def cut_photo():
             print_help()
             for infile in file_list:
                 img = Image.open(src_dir+infile)
-                Graphics(infile=src_dir+infile, outfile=src_dir + infile).cut_by_ratio()            
+                Graphics(infile=src_dir+infile, outfile=des_dir + infile).cut_by_ratio()            
         else:
             pass
     else:
         print("source directory not exist!")     
 
 
-"""
+
 def git_operation():
-   
-    git 命令行函数，将仓库提交
+	"""    git 命令行函数，将仓库提交
     
-----------
+	----------
     需要安装git命令行工具，并且添加到环境变量中
-    
-    os.system('git add --all')
-    os.system('git commit -m "add photos"')
-    os.system('git push origin master')
-"""
+	"""
+	os.system('git add --all')
+	os.system('git commit -m "add photos"')
+	os.system('git push origin master')
+
 if __name__ == "__main__":
-#    cut_photo()        # 裁剪图片，裁剪成正方形，去中间部分
-#    compress_photo()   # 压缩图片，并保存到mini_photos文件夹下
-#    git_operation()    # 提交到github仓库
+    compress_photo("src_photos/", "photos/","2")   # 压缩图片，并保存到mini_photos文件夹下
+    compress_photo("src_photos/", "tmp_photos/","4")   # 压缩图片，并保存到mini_photos文件夹下
+    cut_photo("tmp_photos/", "mini_photos/")        # 裁剪图片，裁剪成正方形，去中间部分
+    git_operation()    # 提交到github仓库
     handle_photo()     # 将文件处理成json格式，存到博客仓库中
     
     
