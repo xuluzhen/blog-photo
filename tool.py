@@ -68,6 +68,7 @@ def compress(choose, des_dir, src_dir, file_list):
         w, h = img.size
         img.thumbnail((int(w/scale), int(h/scale)))
         img.save(des_dir + infile)
+		#Graphics(infile=src_dir+infile, outfile=des_dir + infile).resize_by_size(100)
 def compress_photo(src_dir,des_dir,str):
     '''调用压缩图片的函数
     '''
@@ -146,7 +147,7 @@ def cut_photo(src_dir,des_dir):
             print_help()
             for infile in file_list:
                 img = Image.open(src_dir+infile)
-                Graphics(infile=src_dir+infile, outfile=des_dir + infile).cut_by_ratio()            
+                Graphics(infile=src_dir+infile, outfile=des_dir + infile).resize_by_size(100)            
         else:
             pass
     else:
@@ -167,7 +168,7 @@ def git_operation():
 if __name__ == "__main__":
     compress_photo("src_photos/", "photos/","2")   # 压缩图片，并保存到mini_photos文件夹下
     compress_photo("src_photos/", "tmp_photos/","4")   # 压缩图片，并保存到mini_photos文件夹下
-    cut_photo("tmp_photos/", "mini_photos/")        # 裁剪图片，裁剪成正方形，去中间部分
+    cut_photo("tmp_photos/", "mini1_photos/")        # 裁剪图片，裁剪成正方形，去中间部分
     git_operation()    # 提交到github仓库
     handle_photo()     # 将文件处理成json格式，存到博客仓库中
     
